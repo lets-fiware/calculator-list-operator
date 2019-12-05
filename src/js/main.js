@@ -10,10 +10,6 @@
 
     "use strict";
 
-    MashupPlatform.prefs.registerCallback(function (new_preferences) {
-
-    }.bind(this));
-
     var parseInputEndpointData = function parseInputEndpointData(data) {
         if (typeof data === "string") {
             try {
@@ -30,39 +26,72 @@
         return data;
     };
 
-    var safeEval = function safeEval(formula) {
-        for (var i = 0; i < formula.length; i++) {
-            if (' 0123456789.()+-*/A'.indexOf(formula.substr(i, 1)) === -1) {
-                return null;
-            }
+    var pushEvent = function pushEvent(data) {
+        if (MashupPlatform.operator.outputs.output.connected) {
+            MashupPlatform.wiring.pushEvent("output", data);
         }
-        return new Function('A', '"use strict";return (' + formula + ')');
     }
 
-    var formula = safeEval(MashupPlatform.prefs.get('formula'));
+    var mathTable = {"none": "", "round": "Math.round", "floor": "Math.floor", "ceil": "Math.ceil", "trunc": "Math.trunc" };
+    var shiftTable = {"integer": "1", "first": "10", "second": "100", "third": "1000" };
 
-    MashupPlatform.prefs.registerCallback(function (new_preferences) {
-        formula = safeEval(MashupPlatform.prefs.get('formula'));
-    }.bind(this));
+    var safeEval = function safeEval() {
+        var formula = MashupPlatform.prefs.get('formula');
+        if (formula != "") {
+            for (var i = 0; i < formula.length; i++) {
+                if (' 0123456789.()+-*/A'.indexOf(formula.substr(i, 1)) === -1) {
+                    throw new MashupPlatform.wiring.EndpointTypeError();
+                }
+            }
+        } else {
+            formula = 'A';
+        }
 
-    MashupPlatform.wiring.registerCallback("input", function (list) {
+        var round = mathTable[MashupPlatform.prefs.get('math')];
+        var shift = shiftTable[MashupPlatform.prefs.get('point')];
+        round = round + ((round === "" || shift === "1") ? '(A)' : '(A*' + shift + ')/' + shift);
+
+        return new Function('A', '"use strict";A=parseFloat(A);A=(' + formula + ');return (' + round + ');');
+    }
+
+    var calculatorList = function calculatorList(list) {
+        var formula = safeEval();
+
         list = parseInputEndpointData(list);
 
         if (list != null) {
             var newList = list.map(function (value) {
-                if (!isNaN(value) && formula != null) {
+                if (!isNaN(value)) {
                     return formula(value);
                 } else {
-                    throw new MashupPlatform.wiring.EndpointTypeError();
+                    var mode = MashupPlatform.prefs.get('mode');
+                    if (mode === "exception") {
+                        throw new MashupPlatform.wiring.EndpointTypeError();
+                    } else if (mode === "pass") {
+                        return value;
+                    } // remove
                 }
                 return null;
             });
-            MashupPlatform.wiring.pushEvent("output", newList);
+
+            newList = newList.filter(v => v);
+            pushEvent(newList);
+
         } else {
             if (MashupPlatform.prefs.get("send_nulls")) {
                 MashupPlatform.wiring.pushEvent("output", list);
             }
         }
-    });
+    }
 
+    /* TODO
+     * this if is required for testing, but we have to search a cleaner way
+     */
+    if (window.MashupPlatform != null) {
+        MashupPlatform.wiring.registerCallback("input", calculatorList);
+    }
+
+    /* test-code */
+    window.calculatorList = calculatorList;
+    /* end-test-code */
 })();
