@@ -1,6 +1,11 @@
 # Calculator list operator operator
 
-The Calculator list operator operator is a WireCloud operator that provides ...
+[![](https://nexus.lab.fiware.org/repository/raw/public/badges/chapters/visualization.svg)](https://www.fiware.org/developers/catalogue/)
+[![License: MIT](https://img.shields.io/github/license/lets-fiware/calculator-list-operator.svg)](https://opensource.org/licenses/MIT)<br/>
+[![Build Status](https://travis-ci.org/lets-fiware/calculator-list-operator.svg?branch=master)](https://travis-ci.org/lets-fiware/calculator-list-operator)
+[![Coverage Status](https://coveralls.io/repos/github/lets-fiware/calculator-list-operator/badge.svg?branch=master)](https://coveralls.io/github/lets-fiware/calculator-list-operator?branch=master)
+
+The Calculator list operator operator is a WireCloud operator that allows to calculate a value of a formula which is set in settings with value list which comes from input endpoint.
 
 ## Build dependencies
 

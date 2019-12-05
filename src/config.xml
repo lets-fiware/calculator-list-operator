@@ -23,12 +23,30 @@
 
     <preferences>
         <preference name="formula" type="text" label="formula" description="formula" default="A * 100"/>
+        <preference name="mode" type="list" label="When invalid value" description="when error occur" default="exception">
+          <option label="Throw exception" value="exception"/>
+          <option label="Remove value" value="remove"/>
+          <option label="Pass through" value="pass"/>
+        </preference>
+        <preference name="math" type="list" label="Math" description="Math" default="round">
+          <option label="no operation" value="none"/>
+          <option label="round" value="round"/>
+          <option label="floor" value="floor"/>
+          <option label="ceil" value="ceil"/>
+          <option label="trunc" value="trunc"/>
+        </preference>
+        <preference name="point" type="list" label="Decimal point" description="after the decimal point" default="integer">
+          <option label="integer" value="integer"/>
+          <option label="first decimal place" value="first"/>
+          <option label="second decimal place" value="second"/>
+          <option label="third decimal place" value="third"/>
+        </preference>
         <preference name="send_nulls" type="boolean" label="Send Nulls" description="Enable this option to propagate null values, leave it disable to filter null events" default="true" />
     </preferences>
 
     <wiring>
-        <inputendpoint name="input" type="text" label="input" description="input list" friendcode="list" />
-        <outputendpoint name="output" type="text" label="output" description="output list" friendcode="list" />
+        <inputendpoint name="input" type="text" label="input" description="A"/>
+        <outputendpoint name="output" type="text" label="output" description="output"/>
     </wiring>
 
     <scripts>
